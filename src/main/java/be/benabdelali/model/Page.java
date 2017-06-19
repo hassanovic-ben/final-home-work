@@ -1,30 +1,26 @@
 package be.benabdelali.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by hassan on 4/06/2017.
- */
+
 @Entity
 public class Page {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID_PAGE")
     private Long idPage;
 
     private String title;
 
     private int number;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "BOOK_FK")
-    private Book book;
+    private int numberTitleBought;
 
-    @OneToMany(mappedBy = "page",cascade = CascadeType.ALL)
+    @OneToMany
+    @JoinColumn(name = "PAGE_FR",referencedColumnName = "ID_PAGE")
     private List<Content> contents = new ArrayList<>();
 
     public Page() {
@@ -59,21 +55,19 @@ public class Page {
         this.number = number;
     }
 
-    @JsonIgnore
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-
     public List<Content> getContents() {
         return contents;
     }
 
     public void setContents(List<Content> contents) {
         this.contents = contents;
+    }
+
+    public int getNumberTitleBought() {
+        return numberTitleBought;
+    }
+
+    public void setNumberTitleBought(int numberTitleBought) {
+        this.numberTitleBought = numberTitleBought;
     }
 }

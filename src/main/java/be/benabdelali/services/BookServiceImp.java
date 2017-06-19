@@ -4,36 +4,33 @@ import be.benabdelali.model.Book;
 import be.benabdelali.model.Status;
 import be.benabdelali.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-/**
- * Created by hassan on 4/06/2017.
- */
 @Service
 @Transactional
 public class BookServiceImp implements BookService {
 
 
     @Autowired
-    BookRepository bookRepository;
+    private BookRepository bookRepository;
 
     @Override
     public Book createBook(Book book) {
-        if(book.getQuantity()<0){
+        if (!getBookByName(book.getNameBook()).isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             if (book.getQuantity() > 0) {
                 book.setStatus(Status.AVAILAIBLE);
             } else {
                 book.setStatus(Status.OUT_OF_STOCK);
             }
         }
+
         return bookRepository.save(book);
     }
 
@@ -41,6 +38,7 @@ public class BookServiceImp implements BookService {
     public Long deleteBook(Long id) {
 
         Book foundBook = getBookById(id);
+
         if (foundBook != null) {
             bookRepository.delete(id);
             return id;
@@ -50,36 +48,29 @@ public class BookServiceImp implements BookService {
 
     @Override
     public Book updateBook(Long id, Book book) {
-        Book foundBook = getBookById(id);
-        if (foundBook != null) {
-            if(book.getQuantity()<0){
-                return null;
-            }
-            else{
-                if (book.getQuantity()==0){
-                    book.setStatus(Status.OUT_OF_STOCK);
-                }
-                else{
-                    book.setStatus(Status.AVAILAIBLE);
-                }
-            }
-            Book b = bookRepository.saveAndFlush(book);
-            return b;
-        }
 
+        if (book.getQuantity() > 0) {
+            book.setStatus(Status.AVAILAIBLE);
+        } else {
+            book.setStatus(Status.OUT_OF_STOCK);
+        }
+        int var = bookRepository.updateBook(book.getNameBook(), book.getPrice(), book.getQuantity(),
+                book.getStatus(), book.getQuantitySold(), id);
+        if (var != 0) {
+            return bookRepository.findOne(id);
+        }
         return null;
     }
 
     @Override
     public List<Book> getBooks() {
-
         return bookRepository.findAll();
     }
 
     @Override
     public Book getBookById(Long id) {
 
-        if(null!=bookRepository.findOne(id)){
+        if (null != bookRepository.findOne(id)) {
             return bookRepository.findOne(id);
         }
         return null;
@@ -90,9 +81,25 @@ public class BookServiceImp implements BookService {
         return bookRepository.findAvailaibleBook();
     }
 
+
     @Override
-    public Book getBookByName(String nameBook) {
+    public Book getBestBookBought() {
+
+        List<Book> list = bookRepository.findAll();
+        for (int i = 0; i < list.size(); i++) {
+            Collections.sort(list, Comparator.comparing((Book c) -> c.getQuantitySold()));
+        }
+        return list.get(list.size() - 1);
+    }
+
+    @Override
+    public long getSumTotalBook() {
+        return bookRepository.getSumTotalBook();
+    }
+
+    @Override
+    public List<Book> getBookByName(String nameBook) {
         List<Book> listBooks = bookRepository.findByNameBook(nameBook);
-        return listBooks.get(0);
+        return listBooks;
     }
 }

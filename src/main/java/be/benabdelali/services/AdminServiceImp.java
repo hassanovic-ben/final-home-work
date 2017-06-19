@@ -1,34 +1,24 @@
 package be.benabdelali.services;
 
 import be.benabdelali.model.Admin;
-import be.benabdelali.model.Client;
 import be.benabdelali.repositories.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by hassan on 3/06/2017.
- */
 
 @Service
 @Transactional
 public class AdminServiceImp implements AdminService {
 
-
     @Autowired
-    AdminRepository adminRepository;
-
+    private AdminRepository adminRepository;
 
     @Override
     public List<Admin> findAll() {
-
-        return adminRepository.findAll();
+        List<Admin> users = adminRepository.findAll();
+        return users;
     }
 
     @Override
@@ -63,8 +53,8 @@ public class AdminServiceImp implements AdminService {
     @Override
     public Admin getById(Long idUser) {
 
-        Admin admin = adminRepository.findOne(idUser);
-        return admin;
+        Admin adminFound = adminRepository.findOne(idUser);
+        return adminFound;
     }
 
     @Override
@@ -74,7 +64,6 @@ public class AdminServiceImp implements AdminService {
     }
 
     @Override
-
     public Long deleteAdmin(Long id) {
         Admin foundAdmin = adminRepository.findOne(id);
         if (foundAdmin != null) {
@@ -85,20 +74,7 @@ public class AdminServiceImp implements AdminService {
     }
 
     @Override
-    public int totalBookSold() {
-        //return clientRepository.bestSeller();
-        return adminRepository.totalBookSeller();
-    }
-
-    @Override
-    public List<Client> bestSellerForTheBook() {
-        return adminRepository.bestSellerForTheBook();
-    }
-
-    @Override
     public List getAdminByUserName(String userName) {
         return adminRepository.findByUserName(userName);
     }
-
-
 }

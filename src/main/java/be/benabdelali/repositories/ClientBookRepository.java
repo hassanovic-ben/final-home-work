@@ -1,10 +1,11 @@
 package be.benabdelali.repositories;
 
-import be.benabdelali.model.Content;
+import be.benabdelali.model.ClientBook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContentRepository extends JpaRepository<Content, Long> {
+public interface ClientBookRepository extends JpaRepository<ClientBook, Long> {
+
 
 }

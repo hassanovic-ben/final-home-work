@@ -1,13 +1,11 @@
 package be.benabdelali.model;
 
+import be.benabdelali.services.ClientBookServiceImp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
-/**
- * Created by hassan on 4/06/2017.
- */
 @Entity
 public class Content {
 
@@ -17,18 +15,15 @@ public class Content {
 
     private String text;
 
-    private LocalDate lastUpdateDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PAGE_FK")
-    private Page page;
+    private String lastUpdateDate;
 
     public Content() {
     }
 
-    public Content(String text, LocalDate lastUpdateDate) {
+    public Content(String text) {
         this.text = text;
-        this.lastUpdateDate = lastUpdateDate;
+        System.out.println(ClientBookServiceImp.getCurrentTimeStamp()+"****************");
+        this.lastUpdateDate = ClientBookServiceImp.getCurrentTimeStamp();
     }
 
     public Long getIdContent() {
@@ -47,19 +42,12 @@ public class Content {
         this.text = text;
     }
 
-    public LocalDate getLastUpdateDate() {
+    public String getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDate lastUpdateDate) {
+    public void setLastUpdateDate(String lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
-    @JsonIgnore
-    public Page getPage() {
-        return page;
-    }
 
-    public void setPage(Page page) {
-        this.page = page;
-    }
 }

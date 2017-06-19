@@ -1,6 +1,5 @@
 package be.benabdelali.services;
 
-import be.benabdelali.model.Admin;
 import be.benabdelali.model.Client;
 import be.benabdelali.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +8,16 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 
-/**
- * Created by hassan on 4/06/2017.
- */
-
-
 @Service
 @Transactional
 public class ClientServiceImp implements ClientService {
 
     @Autowired
-    ClientRepository clientRepository;
+    private ClientRepository clientRepository;
 
     @Override
     public Client createClient(Client c) {
-        return clientRepository.saveAndFlush(c);
+        return clientRepository.save(c);
     }
 
     @Override
@@ -31,21 +25,19 @@ public class ClientServiceImp implements ClientService {
         clientRepository.delete(c);
     }
 
+
     @Override
     public Client updateClient(Client client, Long idClient) {
-        if(clientRepository.findByUserName(client.getUserName()).size()!=0){
-            System.out.println("coocococo");
-            return null;
+
+        int var = clientRepository.updateClient(client.getName(), client.getUserName(), client.getPassword(), client.getTimeLoggin()
+                , client.getAddress(), client.getEmail(), client.getNbrBookBought(), idClient);
+        if (var != 0) {
+            Client c = clientRepository.findOne(idClient);
+            return c;
         }
-        int numberRowUpdated = clientRepository.updateClient(client.getName(), client.getUserName(), client.getPassword(), client.getAddress(), client.getEmail(), idClient);
-        if (0 != numberRowUpdated) {
-            return null;
-            }
-
-        Client clientUpdated = clientRepository.findOne(client.getIdUser());
-        return clientUpdated;
-
+        return null;
     }
+
 
     @Override
     public List<Client> getClients() {
@@ -62,5 +54,9 @@ public class ClientServiceImp implements ClientService {
         return clientRepository.findByUserName(userName);
     }
 
+    @Override
+    public List<Client> findBestClient(String type) {
+        return clientRepository.findByTypeOrderByNbrBookBoughtDesc("client");
+    }
 
 }

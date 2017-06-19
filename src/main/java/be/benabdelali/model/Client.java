@@ -1,6 +1,7 @@
 package be.benabdelali.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Columns;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,39 +15,28 @@ import java.util.List;
 @DiscriminatorValue("client")
 public class Client extends Admin {
 
+
     @NotNull
     private String address;
     @NotNull
     private String email;
 
-    @ManyToMany
-    @JoinTable(
-            name="CLIENT_BOOK",
-            joinColumns= {
-                    @JoinColumn(name="ID_CLIENT", referencedColumnName="ID_USER")},
-            inverseJoinColumns={
-                    @JoinColumn(name="ID_BOOK", referencedColumnName="ID_BOOK")})
-    private List<Book> listBooks = new ArrayList<>();
+    private int nbrBookBought;
+
+    private Long timeLoggin = new Long(0);
 
     public Client() {
     }
 
 
-
     public Client(String name, String userName, String password, String address, String email) {
+
         super(name, userName, password);
         this.address = address;
         this.email = email;
+        this.nbrBookBought = 0;
+        this.timeLoggin = 0L;
     }
-
-    public Client(String name, String userName, String password, String address, String email, List list) {
-        super(name, userName, password);
-        this.address = address;
-        this.email = email;
-        this.listBooks=list;
-    }
-
-
 
     public String getAddress() {
         return address;
@@ -63,13 +53,22 @@ public class Client extends Admin {
     public void setEmail(String email) {
         this.email = email;
     }
-    @JsonIgnore
-    public List<Book> getListBooks() {
-        return listBooks;
+
+    public int getNbrBookBought() {
+        return nbrBookBought;
     }
 
-    public void setListBooks(List<Book> listBooks) {
-        this.listBooks = listBooks;
+    public void setNbrBookBought(int nbrBookBought) {
+        this.nbrBookBought = nbrBookBought;
     }
+
+    public Long getTimeLoggin() {
+        return timeLoggin;
+    }
+
+    public void setTimeLoggin(Long timeLoggin) {
+        this.timeLoggin = timeLoggin;
+    }
+
 
 }

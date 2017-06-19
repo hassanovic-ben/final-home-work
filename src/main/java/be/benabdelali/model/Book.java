@@ -7,16 +7,12 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by hassan on 4/06/2017.
- */
-
-
 @Entity
+@Table(name = "BOOK")
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "ID_BOOK")
     private Long idBook;
 
@@ -29,15 +25,13 @@ public class Book {
     @NotNull
     private int quantity;
 
-    private String shipping;
-
     private Status status;
 
-    @OneToMany(mappedBy = "book",cascade = CascadeType.ALL)
-    private List<Page> pages = new ArrayList<>();
+    private int quantitySold;
 
-    @ManyToMany(mappedBy = "listBooks")
-    private List<Client> listClients;
+    @OneToMany
+    @JoinColumn(name="BOOK_FK",referencedColumnName = "ID_BOOK")
+    private List<Page> pages = new ArrayList<>();
 
     public Book() {
     }
@@ -46,18 +40,9 @@ public class Book {
         this.nameBook = nameBook;
         this.price = price;
         this.quantity = quantity;
-
-    }
-
-    public Book(String nameBook, float price, int quantity, String shipping) {
-        this.nameBook = nameBook;
-        this.price = price;
-        this.quantity = quantity;
-        this.shipping = shipping;
-        if(quantity<1){
+        if (quantity < 1) {
             this.status = Status.OUT_OF_STOCK;
-        }
-        else{
+        } else {
             this.status = Status.AVAILAIBLE;
         }
     }
@@ -94,23 +79,6 @@ public class Book {
         this.quantity = quantity;
     }
 
-    public String getShipping() {
-        return shipping;
-    }
-
-    public void setShipping(String shipping) {
-        this.shipping = shipping;
-    }
-
-    @JsonIgnore
-    public List<Client> getListClients() {
-        return listClients;
-    }
-
-    public void setListClients(List<Client> listClients) {
-        this.listClients = listClients;
-    }
-
     public List<Page> getPages() {
         return pages;
     }
@@ -128,5 +96,12 @@ public class Book {
         this.status = status;
     }
 
+    public int getQuantitySold() {
+        return quantitySold;
+    }
+
+    public void setQuantitySold(int quantitySold) {
+        this.quantitySold = quantitySold;
+    }
 
 }

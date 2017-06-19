@@ -1,50 +1,160 @@
 package be.benabdelali.controller;
 
 import be.benabdelali.model.Admin;
+
+import be.benabdelali.model.Book;
 import be.benabdelali.model.Client;
-import com.sun.xml.internal.ws.resources.HttpserverMessages;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Created by hassan on 10/06/2017.
- */
 
 public class AdminRestControllerTest {
 
-    final String fooResourceUrl = "http://localhost:8080/bookstore/";
-    RestTemplate restTemplate = new RestTemplate();
     @Test
-    public void testAddAdmin(){
+    public void testConnection() {
 
-
-
-        Admin admin = new Admin("aaaa","aaaa","aaaa");
-        admin.setIdUser(1L);
-        admin.setType("admin");
-        try {
-            ResponseEntity<Admin> response;
-            response = restTemplate.postForEntity(fooResourceUrl, admin ,  Admin.class);
-            System.out.println(response.getStatusCode()+"*********************");
-            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        }
-        catch (Exception e){
-            System.out.println(e);
-        }
-
-        System.out.println("Client added...");
-        System.out.println("any");
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        String username = "hassan";
+        String password = "hassan";
+        ResponseEntity<Admin> response = restTemplate.getForEntity(fooResourceUrl + "login/"+username+"/"+password, Admin.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+
+    @Test
+    public void testFindById() {
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity<Admin>  response = restTemplate.getForEntity(fooResourceUrl + "/admin/findById/1", Admin.class);
+        Assertions.assertThat(response.getBody().getName()).isEqualTo("hassan");
+        Assertions.assertThat(response.getBody().getIdUser()).isEqualTo(1L);
+    }
+
+    @Test
+    public void testShowUsers() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/show-users", Admin[].class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
+
+    @Test
+    public void testShowBooks() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/show-books", Book[].class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
+
+    @Test
+    public void testUserByType() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        String type = "admin";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/findByType/" + type, Admin[].class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void testUserById() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        int id = 1;
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/findById/" + id, Admin.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void testCreateClient() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        Client client = new Client("jihad simac", "jihad", "jihad", "simac street", "jihad@gmail.com");
+        try {
+            ResponseEntity response = restTemplate.postForEntity(fooResourceUrl + "admin/create-client", client, String.class);
+            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        } catch (final HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            System.out.println(e.getResponseBodyAsString());
+        }
+    }
+
+    @Test
+    public void testCreateAdmin() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        Admin admin = new Admin("bart","bart","bart");
+        try {
+            ResponseEntity response = restTemplate.postForEntity(fooResourceUrl + "admin/create-admin", admin , String.class);
+            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        }
+        catch (final HttpClientErrorException e) {
+            System.out.println(e.getStatusCode());
+            System.out.println(e.getResponseBodyAsString());
+        }
+    }
+
+    @Test
+    public void testBestClient() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/bestClient", String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
+
+    @Test
+    public void testBestBook() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/bestBook", String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    }
+
+    @Test
+    public void testTotalBookSold() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        ResponseEntity response = restTemplate.getForEntity(fooResourceUrl + "admin/totalBookSold", String.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void testDeleteUser(){
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8080/bookstore/";
+        restTemplate.delete(fooResourceUrl+"admin/delete-user/"+7);
+        System.out.println("user deleted successfuly ");
+    }
+
+    @Test
+    public void testUpdateClient(){
+
+        RestTemplate restTemplate = new RestTemplate();
+        Client client = new Client("lukas","lukas","lukas","street simac ","lukas@gmail.com");
+        String fooResourceUrl = "http://localhost:8080/bookstore/admin/update-client/"+5;
+        restTemplate.put(fooResourceUrl,client);
+        System.out.println("user deleted successfuly ");
+
+    }
 
 }

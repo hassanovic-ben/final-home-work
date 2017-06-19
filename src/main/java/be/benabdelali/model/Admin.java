@@ -1,9 +1,11 @@
 package be.benabdelali.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.DiscriminatorOptions;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,10 +17,11 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("admin")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Admin {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "ID_USER")
     private Long idUser;
 
@@ -31,7 +34,7 @@ public class Admin {
     @NotNull
     private String password;
 
-    @Column(name="type", insertable = false, updatable = false)
+    @Column(name = "type", insertable = false, updatable = false)
     private String type;
 
 
@@ -42,6 +45,7 @@ public class Admin {
         this.name = name;
         this.userName = userName;
         this.password = password;
+
     }
 
 
@@ -84,4 +88,6 @@ public class Admin {
     public void setType(String type) {
         this.type = type;
     }
+
+
 }

@@ -1,139 +1,117 @@
 package be.benabdelali.controller;
 
-
 import be.benabdelali.model.Book;
 import be.benabdelali.model.Page;
-import be.benabdelali.model.Status;
 import be.benabdelali.services.BookService;
 import be.benabdelali.services.PageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-/**
- * Created by hassan on 7/06/2017.
- */
 
 @RestController
 public class PageRestController {
 
     @Autowired
-    PageService pageService;
+    private PageService pageService;
 
     @Autowired
-    BookService bookService;
+    private BookService bookService;
 
-    @GetMapping(value = "/fill/page")
-    public ResponseEntity fillPage(){
-        fillPageTable(); // to add some data into the page table
-        return new ResponseEntity("WE ADDED SOME DATA INTO THE PAGE TABLE", HttpStatus.OK);
+    @PostMapping(value = "/admin/book/{idBook}/create")
+    public ResponseEntity createPage(@PathVariable Long idBook, @RequestBody Page page, HttpSession session) {
+
+        /* if (session.getAttribute("admin") == null) {
+            return new ResponseEntity("YOU HAVE TO BE ADMIN  ", HttpStatus.NOT_ACCEPTABLE);
+        }*/
+        Book book = bookService.getBookById(idBook);
+        if(null==book){
+            return new ResponseEntity("NO BOOK FOUND FOR "+idBook,HttpStatus.NOT_FOUND);
+        }
+
+        Page pageCreated = pageService.create(idBook, page);
+
+        if (null == pageCreated) {
+            return new ResponseEntity("PAGE NUMBER ALREADY EXIST ", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return new ResponseEntity(" PAGE ADDED SUCCESSFULY ", HttpStatus.CREATED);
     }
 
+    @GetMapping(value = "/client/book/{id}/pages")
+    public ResponseEntity showPagesByBook(@PathVariable Long id, HttpSession session) {
 
-    @GetMapping(value = "/admin/book/{idBook}/create-page")
-    public ResponseEntity createPage(@PathVariable Long idBook,@RequestBody Page page){
-        pageService.create(idBook,page);
-        fillPageTable(); // to add some data into the page table
-        return new ResponseEntity("WE ADDED SOME DATA INTO THE PAGE TABLE", HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/book/{id}/pages")
-    public ResponseEntity showPages(@PathVariable Long id){
+      /*  if (session.getAttribute("client") == null) {
+            return new ResponseEntity("YOU HAVE TO BE CLIENT TO CONSULT PAGES ", HttpStatus.NOT_ACCEPTABLE);
+        }*/
 
         Book book = bookService.getBookById(id);
-        if(null==book){
-            return new ResponseEntity("NO BOOK FOUND FOT THIS " + id ,HttpStatus.NOT_FOUND);
+        if (null == book) {
+            return new ResponseEntity("NO BOOK FOUND FOR THIS " + id, HttpStatus.NOT_FOUND);
         }
 
         List<Page> listPage = book.getPages();
-        return new ResponseEntity(listPage,HttpStatus.NOT_FOUND);
-
+        return new ResponseEntity(listPage, HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping(value = "/admin/book/{idBook}/update-page/{idPage}")
-    public ResponseEntity updatePageByIdBook(@PathVariable Long idBook, @PathVariable Long idPage, @RequestBody Page page, HttpSession session){
 
-        if(session.getAttribute("connectedAdmin")==null) {
-            return new ResponseEntity("YOU HAVE TO BE ADMIN TO ADD ADMIN",HttpStatus.NOT_ACCEPTABLE);
-        }
+    @GetMapping(value = "/admin/pages")
+    public ResponseEntity showAllPages(HttpSession session) {
 
-        Book book = bookService.getBookById(idBook);
-        if(null==book){
-            return new ResponseEntity("NO BOOK FOUND FOT THIS " + idBook ,HttpStatus.NOT_FOUND);
-        }
+        /* if (session.getAttribute("client") == null) {
+            return new ResponseEntity("YOU HAVE TO BE CLIENT TO CONSULT PAGES ", HttpStatus.NOT_ACCEPTABLE);
+        }*/
 
-        Page pageFound = book.getPages().get(Math.toIntExact(idPage));
-        Page pageUpdated = pageService.update(pageFound.getIdPage(),page);
-
-        return new ResponseEntity(pageUpdated,HttpStatus.NOT_FOUND);
-
+        List<Page> listPage = pageService.findAll();
+        return new ResponseEntity(listPage, HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping(value = "/admin/book/{idBook}/delete-page/{idPage}")
-    public ResponseEntity deletePageByIdBook(@PathVariable Long idBook, @PathVariable Long idPage, HttpSession session){
-        if(session.getAttribute("connectedAdmin")==null) {
-            return new ResponseEntity("YOU HAVE TO BE ADMIN TO ADD ADMIN",HttpStatus.NOT_ACCEPTABLE);
-        }
-        Book book = bookService.getBookById(idBook);
-        if(null==book){
-            return new ResponseEntity("NO BOOK FOUND FOT THIS " + idBook ,HttpStatus.NOT_FOUND);
-        }
-        Page pageFound = book.getPages().get(Math.toIntExact(idPage));
-        if(null==pageFound){
-            return new ResponseEntity("NO PAGE FOUND FOT THIS ID :" + idPage ,HttpStatus.NOT_FOUND);
-        }
-        Long id = pageService.delete(pageFound.getIdPage());
+    @PutMapping(value = "/admin/update-page/{id}")
+    public ResponseEntity updatePageByIdBook(@PathVariable Long id, @RequestBody Page page, HttpSession session) {
 
-        return new ResponseEntity("PAGE WITH ID :" + id + " IS DELETED SUCCESSFULLY  ",HttpStatus.NOT_FOUND);
+        /* if (session.getAttribute("admin") == null) {
+            return new ResponseEntity("YOU HAVE TO BE ADMIN ", HttpStatus.NOT_ACCEPTABLE);
+        }*/
 
+        Page p = pageService.getPageById(id);
+
+        if (null == p) {
+            return new ResponseEntity("NO PAGE FOUND", HttpStatus.NOT_FOUND);
+        }
+
+        Page pageUpdated = pageService.update(id, page);
+        return new ResponseEntity("PAGE UPDATED SUCCESSFULY ", HttpStatus.OK);
     }
 
-    public void fillPageTable(){
+    @DeleteMapping(value = "/admin/delete-page/{idPage}")
+    public ResponseEntity deletePageByIdBook(@PathVariable Long idPage, HttpSession session) {
 
-        /*************************** Create a Book Object ******************/
+        /* if (session.getAttribute("admin") == null) {
+            return new ResponseEntity("YOU HAVE TO BE ADMIN ", HttpStatus.NOT_ACCEPTABLE);
+        }*/
 
-        Book book = new Book();
-        book.setNameBook("Captain Majid");
-        book.setPrice(12.5f);
-        book.setQuantity(10);
-        book.setShipping("Come him Self");
-        book.setStatus(Status.AVAILAIBLE);
-        bookService.createBook(book);
+        Page page = pageService.getPageById(idPage);
 
-        /************** Create some pages of this book *************************/
+        if (null == page) {
+            return new ResponseEntity("NO PAGE FOUND FOR THIS " + idPage, HttpStatus.NOT_FOUND);
+        }
 
-        Page page1 = new Page("Introduction",1);
-        page1.setBook(book);
-        Page page2 = new Page("Introduction",2);
-        page2.setBook(book);
-        Page page3 = new Page("Introduction",3);
-        page3.setBook(book);
-        Page page4 = new Page("Introduction",4);
-        page4.setBook(book);
-        Page page5 = new Page("Introduction",5);
-        page5.setBook(book);
-        Page page6 = new Page("Introduction",6);
-        page6.setBook(book);
+        pageService.delete(idPage);
+        return new ResponseEntity("PAGE WITH ID :" + idPage + " IS DELETED SUCCESSFULLY  ", HttpStatus.NOT_FOUND);
+    }
 
+    @GetMapping(value = "/admin/topFiveTitles")
+    public ResponseEntity getTopTitles(){
 
-        /*******************  Insert the pages into the data base **********************/
+        List<Page> pages = pageService.listOfTopFiveTitles();
 
-        pageService.create(1L, page1);
-        pageService.create(1L, page2);
-        pageService.create(1L, page3);
-        pageService.create(1L, page4);
-        pageService.create(1L, page5);
-        pageService.create(1L, page6);
+        if(pages.isEmpty()){
+            return new ResponseEntity("LIST IS EMPTY ",HttpStatus.NOT_FOUND);
+        }
 
-
-
-        /********************* Insert the Book into the data base with his pages **************************/
-
-        bookService.updateBook(book.getIdBook(),book);
-
+        return new ResponseEntity(pages,HttpStatus.OK);
     }
 }

@@ -1,13 +1,10 @@
 package be.benabdelali.services;
 
 import be.benabdelali.model.Admin;
-import be.benabdelali.model.Client;
 
 import java.util.List;
 
-/**
- * Created by hassan on 3/06/2017.
- */
+
 
 public interface AdminService {
 
@@ -21,14 +18,9 @@ public interface AdminService {
 
     Admin getById(Long idUser);
 
-
     List<Admin> getByType(String type);
 
     Long deleteAdmin(Long id);
-
-    int totalBookSold();
-
-    List<Client> bestSellerForTheBook();
 
     List<Admin> getAdminByUserName(String userName);
 }
